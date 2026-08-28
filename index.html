@@ -420,6 +420,34 @@
             flex-wrap: wrap;
         }
 
+        .delivery-info {
+            max-width: 540px;
+            margin: 24px auto 0;
+            padding: 20px 22px;
+            background: #f9fafc;
+            border: 1px solid #dfe4ea;
+            border-radius: 10px;
+            text-align: left;
+        }
+        
+        .delivery-info strong {
+            display: block;
+            margin-bottom: 8px;
+            color: #182230;
+        }
+        
+        .delivery-info p {
+            margin: 8px 0;
+            color: #667085;
+            font-size: 14px;
+            line-height: 1.55;
+        }
+        
+        .delivery-info .delivery-note {
+            margin-top: 14px;
+            font-size: 13px;
+        }
+
         @media (max-width: 900px) {
             .feature-grid {
                 grid-template-columns: 1fr 1fr;
@@ -456,6 +484,7 @@
                 padding: 30px 20px;
             }
         }
+        
     </style>
 </head>
 
@@ -808,9 +837,25 @@
                     Secure checkout powered by Stripe.
                 </div>
                 
-                <div class="purchase-status">
-                    <strong>Delivery:</strong>
-                    The extension package and license information will be emailed to the purchaser after payment confirmation.
+                <div class="delivery-info">
+                    <strong>Instant secure delivery</strong>
+                
+                    <p>
+                        After payment is completed, you will be redirected immediately to a
+                        secure download page for MWD Queue Manager.
+                    </p>
+                
+                    <p>
+                        Your purchase-specific download link remains valid for 7 days and may
+                        be used again during that period. A SHA-256 checksum is also provided
+                        so you can verify the downloaded package.
+                    </p>
+                
+                    <p class="delivery-note">
+                        Keep your Stripe receipt as proof of purchase. If you lose access to
+                        your download before receiving the package, contact MWD Extensions for
+                        assistance.
+                    </p>
                 </div>
 
             </div>
