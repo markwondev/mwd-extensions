@@ -1,0 +1,899 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>MWD Queue Manager for Magento 2 | MWD Extensions</title>
+
+    <meta
+        name="description"
+        content="Monitor Magento 2 message queues, RabbitMQ health, backlog trends, consumers, diagnostics, and alerts directly from Magento Admin."
+    >
+
+    <style>
+        :root {
+            --bg: #f5f7fb;
+            --surface: #ffffff;
+            --surface-alt: #f9fafc;
+            --text: #182230;
+            --muted: #667085;
+            --border: #dfe4ea;
+            --primary: #1565c0;
+            --primary-dark: #0d4f9a;
+            --success: #138a4b;
+            --shadow: 0 10px 30px rgba(20, 34, 52, 0.08);
+            --radius: 12px;
+            --max-width: 1180px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            font-family:
+                Inter,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                Roboto,
+                Helvetica,
+                Arial,
+                sans-serif;
+            color: var(--text);
+            background: var(--bg);
+            line-height: 1.6;
+        }
+
+        a {
+            color: inherit;
+        }
+
+        img {
+            max-width: 100%;
+            display: block;
+        }
+
+        .container {
+            width: min(calc(100% - 40px), var(--max-width));
+            margin: 0 auto;
+        }
+
+        header {
+            background: #101828;
+            color: #fff;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .nav {
+            min-height: 68px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+        }
+
+        .brand {
+            font-size: 20px;
+            font-weight: 700;
+            text-decoration: none;
+            letter-spacing: -0.02em;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #d0d5dd;
+            font-size: 14px;
+        }
+
+        .nav-links a:hover {
+            color: #fff;
+        }
+
+        .hero {
+            background:
+                radial-gradient(circle at top right, rgba(21, 101, 192, 0.3), transparent 40%),
+                #101828;
+            color: #fff;
+            padding: 78px 0 90px;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 42px;
+            align-items: center;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 10px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 999px;
+            color: #d6e8ff;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 18px;
+        }
+
+        h1 {
+            margin: 0;
+            max-width: 900px;
+            font-size: clamp(38px, 5vw, 62px);
+            line-height: 1.05;
+            letter-spacing: -0.045em;
+        }
+
+        .hero-copy {
+            max-width: 760px;
+            margin: 24px 0 0;
+            color: #d0d5dd;
+            font-size: 19px;
+        }
+
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 14px;
+            margin-top: 30px;
+        }
+
+        .button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 46px;
+            padding: 0 20px;
+            border-radius: 8px;
+            font-weight: 650;
+            text-decoration: none;
+            transition: 0.15s ease;
+        }
+
+        .button-primary {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .button-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .button-secondary {
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            color: #fff;
+        }
+
+        .button-secondary:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .hero-note {
+            margin-top: 18px;
+            font-size: 13px;
+            color: #98a2b3;
+        }
+
+        .hero-shot {
+            margin-top: 48px;
+            border: 1px solid rgba(255, 255, 255, 0.13);
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 24px 70px rgba(0, 0, 0, 0.3);
+            background: #fff;
+        }
+
+        section {
+            padding: 76px 0;
+        }
+
+        .section-white {
+            background: var(--surface);
+        }
+
+        .section-heading {
+            max-width: 780px;
+            margin-bottom: 40px;
+        }
+
+        .section-heading h2 {
+            margin: 0 0 12px;
+            font-size: clamp(28px, 3vw, 40px);
+            line-height: 1.15;
+            letter-spacing: -0.03em;
+        }
+
+        .section-heading p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 17px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .feature {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 26px;
+        }
+
+        .feature h3 {
+            margin: 0 0 10px;
+            font-size: 18px;
+        }
+
+        .feature p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 15px;
+        }
+
+        .problem-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 28px;
+        }
+
+        .problem-card {
+            border: 1px solid var(--border);
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 30px;
+        }
+
+        .problem-card h3 {
+            margin-top: 0;
+            font-size: 22px;
+        }
+
+        .problem-card p {
+            margin-bottom: 0;
+            color: var(--muted);
+        }
+
+        .screenshots {
+            display: grid;
+            gap: 46px;
+        }
+
+        .screenshot-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .screenshot-item img {
+            width: 100%;
+        }
+
+        .screenshot-caption {
+            padding: 22px 24px 24px;
+        }
+
+        .screenshot-caption h3 {
+            margin: 0 0 6px;
+            font-size: 19px;
+        }
+
+        .screenshot-caption p {
+            margin: 0;
+            color: var(--muted);
+        }
+
+        .purchase-card {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 42px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .purchase-card h2 {
+            margin: 0;
+            font-size: 34px;
+        }
+
+        .price {
+            margin: 18px 0 2px;
+            font-size: 48px;
+            font-weight: 750;
+            letter-spacing: -0.04em;
+        }
+
+        .price-note {
+            margin: 0 0 26px;
+            color: var(--muted);
+        }
+
+        .purchase-details {
+            margin: 28px auto;
+            padding: 0;
+            max-width: 480px;
+            text-align: left;
+            list-style: none;
+        }
+
+        .purchase-details li {
+            padding: 9px 0;
+            border-bottom: 1px solid #edf0f3;
+        }
+
+        .purchase-details li::before {
+            content: "✓";
+            color: var(--success);
+            font-weight: bold;
+            margin-right: 9px;
+        }
+
+        .pending-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 48px;
+            padding: 0 24px;
+            border-radius: 8px;
+            background: #d0d5dd;
+            color: #667085;
+            font-weight: 650;
+            cursor: not-allowed;
+        }
+
+        .purchase-status {
+            margin-top: 12px;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .technical {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .technical div {
+            background: var(--surface-alt);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 22px;
+        }
+
+        .technical strong {
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .technical span {
+            color: var(--muted);
+        }
+
+        .faq {
+            max-width: 850px;
+        }
+
+        .faq-item {
+            padding: 24px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .faq-item h3 {
+            margin: 0 0 8px;
+            font-size: 18px;
+        }
+
+        .faq-item p {
+            margin: 0;
+            color: var(--muted);
+        }
+
+        footer {
+            padding: 38px 0;
+            background: #101828;
+            color: #98a2b3;
+            font-size: 14px;
+        }
+
+        .footer-inner {
+            display: flex;
+            justify-content: space-between;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 900px) {
+            .feature-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .problem-grid,
+            .technical {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                width: min(calc(100% - 28px), var(--max-width));
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .hero {
+                padding: 56px 0 64px;
+            }
+
+            section {
+                padding: 56px 0;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .purchase-card {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <div class="container nav">
+        <a class="brand" href="#">MWD Extensions</a>
+
+        <nav class="nav-links">
+            <a href="#features">Features</a>
+            <a href="#screenshots">Screenshots</a>
+            <a href="#requirements">Requirements</a>
+            <a href="#purchase">Purchase</a>
+        </nav>
+    </div>
+</header>
+
+
+<main>
+
+    <section class="hero">
+        <div class="container">
+
+            <span class="eyebrow">Magento 2 Message Queue Monitoring</span>
+
+            <h1>
+                Know when your Magento queues have a problem before your customers do.
+            </h1>
+
+            <p class="hero-copy">
+                MWD Queue Manager gives Magento teams a clear view of message queue
+                health, RabbitMQ runtime activity, backlogs, consumers, historical trends,
+                diagnostics, and alerts directly inside Magento Admin.
+            </p>
+
+            <div class="hero-actions">
+                <a class="button button-primary" href="#purchase">
+                    View Pricing
+                </a>
+
+                <a class="button button-secondary" href="#screenshots">
+                    See Queue Manager
+                </a>
+            </div>
+
+            <p class="hero-note">
+                Read-only and observational. Queue Manager does not purge, delete,
+                requeue, start, or stop queues or consumers.
+            </p>
+
+            <div class="hero-shot">
+                <img
+                    src="images/01-dashboard-overview.png"
+                    alt="MWD Queue Manager Magento 2 dashboard overview"
+                >
+            </div>
+
+        </div>
+    </section>
+
+
+    <section id="features" class="section-white">
+        <div class="container">
+
+            <div class="section-heading">
+                <h2>Magento queue monitoring without leaving Magento.</h2>
+
+                <p>
+                    RabbitMQ can tell you what the broker is doing. Queue Manager connects
+                    that runtime information with Magento's configured queues so developers
+                    and operators can understand what it means for the application.
+                </p>
+            </div>
+
+            <div class="feature-grid">
+
+                <article class="feature">
+                    <h3>Queue Health</h3>
+                    <p>
+                        See healthy, processing, stalled, and missing queue states at a glance.
+                    </p>
+                </article>
+
+                <article class="feature">
+                    <h3>Backlog Visibility</h3>
+                    <p>
+                        Identify queues accumulating ready messages and see where work is
+                        beginning to fall behind.
+                    </p>
+                </article>
+
+                <article class="feature">
+                    <h3>Historical Trends</h3>
+                    <p>
+                        Track queue depth and consumer activity over time instead of relying
+                        only on a single live snapshot.
+                    </p>
+                </article>
+
+                <article class="feature">
+                    <h3>Actionable Diagnostics</h3>
+                    <p>
+                        Translate queue state into deterministic explanations that help
+                        identify why a queue requires attention.
+                    </p>
+                </article>
+
+                <article class="feature">
+                    <h3>RabbitMQ Metrics</h3>
+                    <p>
+                        View publish, delivery, acknowledgment, redelivery, memory, and
+                        runtime information through the RabbitMQ Management API.
+                    </p>
+                </article>
+
+                <article class="feature">
+                    <h3>Alerts & Support Diagnostics</h3>
+                    <p>
+                        Receive incident email alerts and generate bounded support information
+                        designed to make troubleshooting easier.
+                    </p>
+                </article>
+
+            </div>
+
+        </div>
+    </section>
+
+
+    <section>
+        <div class="container">
+
+            <div class="section-heading">
+                <h2>Built for Magento operations.</h2>
+
+                <p>
+                    Message queues often work quietly until something stops consuming,
+                    throughput falls behind, or a backlog becomes large enough to affect
+                    application behavior.
+                </p>
+            </div>
+
+            <div class="problem-grid">
+
+                <div class="problem-card">
+                    <h3>See the broker state.</h3>
+                    <p>
+                        Queue Manager uses RabbitMQ runtime information to surface message
+                        counts, consumers, rates, node statistics, and queue activity.
+                    </p>
+                </div>
+
+                <div class="problem-card">
+                    <h3>Understand the Magento context.</h3>
+                    <p>
+                        Runtime information is correlated with Magento's configured queues,
+                        connections, consumers, and topology so the dashboard is useful to
+                        Magento developers and operators.
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+
+    <section id="screenshots" class="section-white">
+        <div class="container">
+
+            <div class="section-heading">
+                <h2>See what is happening across your queues.</h2>
+
+                <p>
+                    Queue Manager lives inside Magento Admin and provides both high-level
+                    health information and detailed queue-level visibility.
+                </p>
+            </div>
+
+            <div class="screenshots">
+
+                <article class="screenshot-item">
+                    <img
+                        src="images/02-queue-details.png"
+                        alt="Magento queue details in MWD Queue Manager"
+                        loading="lazy"
+                    >
+
+                    <div class="screenshot-caption">
+                        <h3>Queue-level details</h3>
+                        <p>
+                            Search your queues and inspect individual runtime, topology, and
+                            consumer information without leaving the dashboard.
+                        </p>
+                    </div>
+                </article>
+
+
+                <article class="screenshot-item">
+                    <img
+                        src="images/03-historical-trends.png"
+                        alt="Magento queue historical trends"
+                        loading="lazy"
+                    >
+
+                    <div class="screenshot-caption">
+                        <h3>Historical backlog trends</h3>
+                        <p>
+                            See a backlog develop and drain over time instead of discovering
+                            a problem only from its current state.
+                        </p>
+                    </div>
+                </article>
+
+
+                <article class="screenshot-item">
+                    <img
+                        src="images/04-diagnostics.png"
+                        alt="Magento message queue diagnostics and activity"
+                        loading="lazy"
+                    >
+
+                    <div class="screenshot-caption">
+                        <h3>Diagnostics and live activity</h3>
+                        <p>
+                            Identify stalled queues and see publish, delivery,
+                            acknowledgment, and redelivery activity.
+                        </p>
+                    </div>
+                </article>
+
+
+                <article class="screenshot-item">
+                    <img
+                        src="images/05-configuration.png"
+                        alt="MWD Queue Manager Magento configuration"
+                        loading="lazy"
+                    >
+
+                    <div class="screenshot-caption">
+                        <h3>Magento-native configuration</h3>
+                        <p>
+                            Configure runtime monitoring and RabbitMQ Management API access
+                            through Magento's standard configuration interface.
+                        </p>
+                    </div>
+                </article>
+
+
+                <article class="screenshot-item">
+                    <img
+                        src="images/06-user-guide.png"
+                        alt="MWD Queue Manager built-in Magento user guide"
+                        loading="lazy"
+                    >
+
+                    <div class="screenshot-caption">
+                        <h3>Built-in User Guide</h3>
+                        <p>
+                            Queue Manager includes Admin documentation explaining queue
+                            states, monitoring behavior, history, diagnostics, alerts, and
+                            operational expectations.
+                        </p>
+                    </div>
+                </article>
+
+            </div>
+
+        </div>
+    </section>
+
+
+    <section id="requirements">
+        <div class="container">
+
+            <div class="section-heading">
+                <h2>Requirements and compatibility</h2>
+
+                <p>
+                    Queue Manager is designed for Magento installations using Magento message
+                    queues and RabbitMQ.
+                </p>
+            </div>
+
+            <div class="technical">
+
+                <div>
+                    <strong>Validated environment</strong>
+                    <span>Magento Open Source 2.4.9 with PHP 8.5.</span>
+                </div>
+
+                <div>
+                    <strong>RabbitMQ runtime monitoring</strong>
+                    <span>
+                        Requires the RabbitMQ Management API for live broker metrics.
+                    </span>
+                </div>
+
+                <div>
+                    <strong>Historical monitoring</strong>
+                    <span>
+                        Magento cron is required for scheduled historical sampling and alerts.
+                    </span>
+                </div>
+
+                <div>
+                    <strong>Operating model</strong>
+                    <span>
+                        Read-only and observational. Queue Manager does not perform destructive
+                        broker actions.
+                    </span>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+
+    <section id="purchase" class="section-white">
+        <div class="container">
+
+            <div class="purchase-card">
+
+                <h2>MWD Queue Manager</h2>
+
+                <div class="price">$199</div>
+
+                <p class="price-note">
+                    One-time license for one production Magento installation.
+                </p>
+
+                <ul class="purchase-details">
+                    <li>MWD Queue Manager for Magento 2</li>
+                    <li>One production Magento installation</li>
+                    <li>Development and staging environments for that installation</li>
+                    <li>12 months of updates</li>
+                    <li>12 months of product support</li>
+                    <li>The installed version continues working after the support period</li>
+                </ul>
+
+                <!--
+                    Replace this block with the Stripe purchase button once
+                    your Stripe payment link becomes Active.
+
+                    Example:
+
+                    <a
+                        class="button button-primary"
+                        href="YOUR_STRIPE_PAYMENT_LINK"
+                    >
+                        Purchase Queue Manager
+                    </a>
+                -->
+
+                <span class="pending-button">
+                    Purchasing Coming Online
+                </span>
+
+                <div class="purchase-status">
+                    Direct purchasing will be available after payment account verification.
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+
+    <section>
+        <div class="container faq">
+
+            <div class="section-heading">
+                <h2>Frequently asked questions</h2>
+            </div>
+
+            <div class="faq-item">
+                <h3>Does Queue Manager modify or purge RabbitMQ queues?</h3>
+                <p>
+                    No. Queue Manager is intentionally observational. It does not purge,
+                    delete, requeue, start, or stop queues or consumers.
+                </p>
+            </div>
+
+            <div class="faq-item">
+                <h3>Does it replace the RabbitMQ Management interface?</h3>
+                <p>
+                    No. RabbitMQ Management provides detailed broker administration.
+                    Queue Manager focuses on bringing relevant RabbitMQ runtime information
+                    into Magento and relating it to Magento queue configuration and health.
+                </p>
+            </div>
+
+            <div class="faq-item">
+                <h3>Does Queue Manager inspect message payloads?</h3>
+                <p>
+                    No. Message payload inspection is not part of Queue Manager.
+                </p>
+            </div>
+
+            <div class="faq-item">
+                <h3>Does the extension send usage telemetry to MWD?</h3>
+                <p>
+                    No. Queue Manager does not send queue activity, RabbitMQ metrics,
+                    Magento operational data, or feature usage telemetry to MWD.
+                </p>
+            </div>
+
+            <div class="faq-item">
+                <h3>What should I provide if I need support?</h3>
+                <p>
+                    Queue Manager includes a support report designed to provide useful
+                    diagnostic information while excluding sensitive operational data.
+                    Customers should review support reports before sending them.
+                </p>
+            </div>
+
+        </div>
+    </section>
+
+</main>
+
+
+<footer>
+    <div class="container footer-inner">
+        <div>
+            © 2026 MWD Extensions
+        </div>
+
+        <div>
+            MWD Queue Manager for Magento 2
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>
