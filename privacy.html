@@ -355,7 +355,161 @@ h1 {
     .policy-card { padding: 28px 22px; border-radius: 15px; }
     .policy-toc-links { grid-template-columns: 1fr; }
 }
+
+
+/* Analytics consent */
+.analytics-consent {
+    position: fixed;
+    left: 20px;
+    right: 20px;
+    bottom: 20px;
+    z-index: 1000;
+    display: none;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 18px 20px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.98);
+    box-shadow: 0 18px 50px rgba(16, 24, 40, 0.16);
+    backdrop-filter: blur(14px);
+}
+.analytics-consent.is-visible { display: block; }
+.analytics-consent-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 22px;
+}
+.analytics-consent-copy { min-width: 0; }
+.analytics-consent-copy strong {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--text);
+}
+.analytics-consent-copy p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.55;
+}
+.analytics-consent-actions {
+    display: flex;
+    flex: 0 0 auto;
+    gap: 8px;
+}
+.analytics-consent button,
+.footer-link-button {
+    font: inherit;
+}
+.analytics-consent button {
+    min-height: 40px;
+    padding: 0 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+}
+.analytics-accept {
+    border: 1px solid var(--primary);
+    background: var(--primary);
+    color: #fff;
+}
+.analytics-decline {
+    border: 1px solid var(--border);
+    background: #fff;
+    color: #344054;
+}
+.footer-link-button {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #475467;
+    cursor: pointer;
+    font-size: inherit;
+}
+.footer-link-button:hover { color: var(--primary); }
+@media (max-width: 640px) {
+    .analytics-consent { left: 12px; right: 12px; bottom: 12px; }
+    .analytics-consent-inner { align-items: stretch; flex-direction: column; gap: 14px; }
+    .analytics-consent-actions { width: 100%; }
+    .analytics-consent-actions button { flex: 1; }
+}
+
 </style>
+
+<!-- Google Analytics 4: loaded only after analytics consent -->
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+
+(function () {
+    const measurementId = 'G-S9FHBM46RS';
+    const storageKey = 'mwd_analytics_consent';
+    let analyticsLoaded = false;
+
+    window.mwdLoadAnalytics = function () {
+        if (analyticsLoaded || localStorage.getItem(storageKey) !== 'granted') return;
+        analyticsLoaded = true;
+
+        const script = document.createElement('script');
+        script.async = true;
+        script.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(measurementId);
+        document.head.appendChild(script);
+
+        gtag('js', new Date());
+        gtag('config', measurementId, {
+            anonymize_ip: true
+        });
+    };
+
+    window.mwdSetAnalyticsConsent = function (value) {
+        localStorage.setItem(storageKey, value);
+        const banner = document.getElementById('analytics-consent');
+        if (banner) banner.classList.remove('is-visible');
+        if (value === 'granted') window.mwdLoadAnalytics();
+    };
+
+    window.mwdOpenAnalyticsSettings = function () {
+        const banner = document.getElementById('analytics-consent');
+        if (banner) banner.classList.add('is-visible');
+    };
+
+    window.mwdTrackBeginCheckout = function () {
+        if (localStorage.getItem(storageKey) !== 'granted') return;
+        window.mwdLoadAnalytics();
+        gtag('event', 'begin_checkout', {
+            currency: 'USD',
+            value: 199,
+            items: [{
+                item_name: 'MWD Queue Manager for Magento 2',
+                price: 199,
+                quantity: 1
+            }]
+        });
+    };
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const consent = localStorage.getItem(storageKey);
+        const banner = document.getElementById('analytics-consent');
+
+        if (consent === 'granted') {
+            window.mwdLoadAnalytics();
+        } else if (consent !== 'denied' && banner) {
+            banner.classList.add('is-visible');
+        }
+
+        document.querySelectorAll('a[href^="https://buy.stripe.com/"]').forEach(function (link) {
+            link.addEventListener('click', window.mwdTrackBeginCheckout);
+        });
+
+        document.querySelectorAll('[data-analytics-settings]').forEach(function (button) {
+            button.addEventListener('click', window.mwdOpenAnalyticsSettings);
+        });
+    });
+})();
+</script>
+
 </head>
 <body>
 <header class="site-header">
@@ -584,15 +738,35 @@ h1 {
 <li>Basic server, security, or error-log information.</li>
 </ul>
 <p>
-                    MWD Extensions does not currently use personal information for
-                    targeted advertising or cross-site behavioral advertising.
+                    MWD Extensions uses Google Analytics 4 (GA4) to understand how
+                    visitors use our website, measure aggregate site activity, and
+                    improve the website and product information. Google Analytics is
+                    optional on this website and is loaded only after a visitor chooses
+                    to accept analytics through our analytics-preferences notice.
                 </p>
 <p>
-                    We do not currently deploy our own advertising cookies or
-                    advertising trackers on the MWD Extensions website. Our website
-                    and linked third-party services may be hosted or operated by
-                    companies that process technical information according to their
-                    own privacy policies.
+                    When enabled, Google Analytics may process information such as
+                    pages viewed, referring pages or websites, browser and device
+                    characteristics, approximate geographic information, interaction
+                    events, and technical identifiers. Google may also process an IP
+                    address as part of providing the service. We configure analytics
+                    for measurement purposes and do not intentionally send names,
+                    email addresses, payment-card information, Magento credentials,
+                    RabbitMQ credentials, or customer support contents to Google
+                    Analytics.
+                </p>
+<p>
+                    Google Analytics may use cookies, browser storage, or similar
+                    technologies after analytics consent is granted. Visitors can
+                    decline analytics or reopen Analytics Preferences from the footer
+                    of the website. Declining optional analytics does not prevent use
+                    of the MWD Extensions website or purchase functionality.
+                </p>
+<p>
+                    MWD Extensions does not currently use Google Analytics for
+                    remarketing, targeted advertising, or cross-site behavioral
+                    advertising, and we do not currently deploy our own advertising
+                    cookies or advertising trackers.
                 </p>
 </section><section id="use">
 <h2>5. How We Use Information</h2>
@@ -678,6 +852,12 @@ h1 {
 <li>
 <strong>GitHub</strong> for source-code hosting and website
                         hosting through GitHub Pages.
+                    </li>
+<li>
+<strong>Google Analytics</strong> for optional website audience
+                        measurement and usage analytics after visitor consent. Google
+                        processes analytics information under its own terms and
+                        privacy practices.
                     </li>
 <li>
 <strong>Adobe</strong> when products are submitted, listed,
@@ -872,7 +1052,9 @@ h1 {
 <p>
                     MWD Extensions is not responsible for the privacy practices of
                     third parties. You should review the privacy policies of those
-                    services before providing information to them.
+                    services before providing information to them. Information about
+                    Google's privacy practices is available at
+                    <a href="https://policies.google.com/privacy" rel="noopener noreferrer">Google's Privacy Policy</a>.
                 </p>
 </section><section id="children">
 <h2>17. Children's Privacy</h2>
@@ -949,10 +1131,28 @@ h1 {
         <div class="footer-links">
             <a href="./">Home</a>
             <a href="privacy.html">Privacy Policy</a>
+<button class="footer-link-button" type="button" data-analytics-settings>Analytics Preferences</button>
             <a href="./#support">Support</a>
             <a href="./#purchase">Purchase</a>
         </div>
     </div>
 </footer>
+
+<div class="analytics-consent" id="analytics-consent" role="dialog" aria-live="polite" aria-label="Analytics preferences">
+    <div class="analytics-consent-inner">
+        <div class="analytics-consent-copy">
+            <strong>Optional website analytics</strong>
+            <p>
+                MWD Extensions uses Google Analytics to understand site usage and improve the website.
+                Analytics is optional. <a href="privacy.html#automatic">Learn more in the Privacy Policy</a>.
+            </p>
+        </div>
+        <div class="analytics-consent-actions">
+            <button class="analytics-decline" type="button" onclick="mwdSetAnalyticsConsent('denied')">Decline</button>
+            <button class="analytics-accept" type="button" onclick="mwdSetAnalyticsConsent('granted')">Accept analytics</button>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>
