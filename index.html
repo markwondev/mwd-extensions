@@ -1,983 +1,692 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>MWD Extensions | Queue Manager for Magento 2</title>
-
-    <meta
-        name="description"
-        content="MWD Queue Manager for Magento 2 provides read-only message queue monitoring, RabbitMQ runtime visibility, diagnostics, history, alerts, and support tooling directly in Magento Admin."
-    >
-
-    <link rel="icon" type="image/png" href="images/MWD_Extensions_logo.png">
-
-    <style>
-        :root {
-            --bg: #f6f8fc;
-            --surface: #ffffff;
-            --surface-soft: #f9fbff;
-            --text: #152033;
-            --muted: #667085;
-            --border: #e2e8f0;
-            --primary: #155eef;
-            --primary-dark: #1849a9;
-            --primary-soft: #eef4ff;
-            --success: #067647;
-            --shadow: 0 18px 50px rgba(16, 24, 40, 0.08);
-            --max-width: 1180px;
-        }
-
-        * {
-            box-sizing: border-box;
-        }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
-        body {
-            margin: 0;
-            background:
-                radial-gradient(circle at top right, rgba(21, 94, 239, 0.08), transparent 34rem),
-                var(--bg);
-            color: var(--text);
-            font-family:
-                -apple-system,
-                BlinkMacSystemFont,
-                "Segoe UI",
-                Roboto,
-                Helvetica,
-                Arial,
-                sans-serif;
-            line-height: 1.6;
-        }
-
-        img {
-            max-width: 100%;
-        }
-
-        a {
-            color: var(--primary);
-        }
-
-        .container {
-            width: min(calc(100% - 40px), var(--max-width));
-            margin: 0 auto;
-        }
-
-        .site-header {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            background: rgba(255, 255, 255, 0.92);
-            backdrop-filter: blur(16px);
-            border-bottom: 1px solid rgba(226, 232, 240, 0.9);
-        }
-
-        .header-inner {
-            min-height: 76px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 24px;
-        }
-
-        .brand img {
-            display: block;
-            width: 225px;
-            max-height: 56px;
-            object-fit: contain;
-            object-position: left center;
-        }
-
-        .nav {
-            display: flex;
-            align-items: center;
-            gap: 24px;
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        .nav a {
-            color: #344054;
-            text-decoration: none;
-        }
-
-        .nav a:hover {
-            color: var(--primary);
-        }
-
-        .button {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            min-height: 46px;
-            padding: 0 19px;
-            border-radius: 9px;
-            border: 1px solid transparent;
-            text-decoration: none;
-            font-weight: 700;
-            transition: 0.2s ease;
-        }
-
-        .button-primary {
-            color: #fff;
-            background: var(--primary);
-            box-shadow: 0 8px 22px rgba(21, 94, 239, 0.22);
-        }
-
-        .button-primary:hover {
-            color: #fff;
-            background: var(--primary-dark);
-            transform: translateY(-1px);
-        }
-
-        .button-secondary {
-            color: #344054;
-            background: #fff;
-            border-color: var(--border);
-        }
-
-        .button-secondary:hover {
-            border-color: #b9c7dc;
-            color: var(--primary);
-        }
-
-        .hero {
-            padding: 84px 0 68px;
-        }
-
-        .hero-grid {
-            display: grid;
-            grid-template-columns: minmax(0, 1.25fr) minmax(330px, 0.75fr);
-            align-items: center;
-            gap: 68px;
-        }
-
-        .eyebrow {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 18px;
-            padding: 7px 11px;
-            border: 1px solid #c7d7fe;
-            border-radius: 999px;
-            background: var(--primary-soft);
-            color: var(--primary-dark);
-            font-size: 13px;
-            font-weight: 700;
-        }
-
-        h1,
-        h2,
-        h3 {
-            color: var(--text);
-            line-height: 1.18;
-        }
-
-        h1 {
-            margin: 0;
-            max-width: 790px;
-            font-size: clamp(42px, 6vw, 68px);
-            letter-spacing: -0.045em;
-        }
-
-        .hero-copy {
-            max-width: 760px;
-            margin: 24px 0 0;
-            color: #475467;
-            font-size: 19px;
-            line-height: 1.7;
-        }
-
-        .hero-actions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-top: 30px;
-        }
-
-        .hero-meta {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 22px;
-        }
-
-        .pill {
-            padding: 7px 10px;
-            border: 1px solid var(--border);
-            border-radius: 999px;
-            background: #fff;
-            color: #475467;
-            font-size: 13px;
-            font-weight: 600;
-        }
-
-        .logo-card {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 420px;
-            padding: 46px;
-            border: 1px solid var(--border);
-            border-radius: 28px;
-            background:
-                linear-gradient(145deg, rgba(255, 255, 255, 0.98), rgba(239, 244, 255, 0.92));
-            box-shadow: var(--shadow);
-        }
-
-        .logo-card img {
-            width: min(100%, 360px);
-            aspect-ratio: 1;
-            object-fit: contain;
-        }
-
-        .section {
-            padding: 76px 0;
-        }
-
-        .section-alt {
-            background: #fff;
-            border-top: 1px solid var(--border);
-            border-bottom: 1px solid var(--border);
-        }
-
-        .section-head {
-            max-width: 780px;
-            margin-bottom: 36px;
-        }
-
-        .section-head h2 {
-            margin: 0 0 14px;
-            font-size: clamp(30px, 4vw, 44px);
-            letter-spacing: -0.03em;
-        }
-
-        .section-head p {
-            margin: 0;
-            color: var(--muted);
-            font-size: 17px;
-        }
-
-        .feature-grid {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 18px;
-        }
-
-        .feature {
-            min-height: 210px;
-            padding: 25px;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            box-shadow: 0 8px 28px rgba(16, 24, 40, 0.04);
-        }
-
-        .feature-number {
-            display: flex;
-            width: 38px;
-            height: 38px;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 18px;
-            border-radius: 10px;
-            background: var(--primary-soft);
-            color: var(--primary);
-            font-size: 14px;
-            font-weight: 800;
-        }
-
-        .feature h3 {
-            margin: 0 0 9px;
-            font-size: 18px;
-        }
-
-        .feature p {
-            margin: 0;
-            color: var(--muted);
-            font-size: 14px;
-        }
-
-        .difference {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        .difference-card {
-            padding: 30px;
-            border-radius: 18px;
-            border: 1px solid var(--border);
-            background: var(--surface);
-        }
-
-        .difference-card.highlight {
-            border-color: #b9ccff;
-            background: linear-gradient(180deg, #f6f9ff 0%, #ffffff 100%);
-        }
-
-        .difference-card h3 {
-            margin: 0 0 11px;
-            font-size: 22px;
-        }
-
-        .difference-card p {
-            margin: 0;
-            color: var(--muted);
-        }
-
-        .screenshots {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 24px;
-        }
-
-        .screenshot {
-            overflow: hidden;
-            margin: 0;
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            background: #fff;
-            box-shadow: 0 10px 30px rgba(16, 24, 40, 0.05);
-        }
-
-        .screenshot img {
-            display: block;
-            width: 100%;
-            aspect-ratio: 16 / 9;
-            object-fit: cover;
-            object-position: top left;
-            background: #f2f4f7;
-        }
-
-        .screenshot figcaption {
-            padding: 15px 17px 17px;
-            color: #475467;
-            font-size: 14px;
-            font-weight: 650;
-        }
-
-        .requirements-grid,
-        .support-grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 20px;
-        }
-
-        .info-card {
-            padding: 28px;
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            background: var(--surface);
-        }
-
-        .info-card h3 {
-            margin: 0 0 14px;
-            font-size: 20px;
-        }
-
-        .info-card ul {
-            margin: 0;
-            padding-left: 20px;
-            color: #475467;
-        }
-
-        .info-card li {
-            margin: 8px 0;
-        }
-
-        .purchase-wrap {
-            display: grid;
-            grid-template-columns: 1.05fr 0.95fr;
-            gap: 24px;
-        }
-
-        .purchase-card,
-        .delivery-card {
-            padding: 34px;
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            background: #fff;
-            box-shadow: 0 12px 34px rgba(16, 24, 40, 0.06);
-        }
-
-        .price {
-            margin: 10px 0 0;
-            font-size: 48px;
-            line-height: 1;
-            font-weight: 800;
-            letter-spacing: -0.04em;
-        }
-
-        .price-note {
-            margin: 10px 0 24px;
-            color: var(--muted);
-        }
-
-        .purchase-card .button {
-            width: 100%;
-        }
-
-        .secure-note {
-            margin-top: 14px;
-            color: var(--muted);
-            text-align: center;
-            font-size: 13px;
-        }
-
-        .delivery-card h3,
-        .purchase-card h3 {
-            margin: 0 0 10px;
-            font-size: 23px;
-        }
-
-        .delivery-card p,
-        .purchase-card p {
-            color: var(--muted);
-        }
-
-        .delivery-points {
-            margin: 20px 0 0;
-            padding: 0;
-            list-style: none;
-        }
-
-        .delivery-points li {
-            position: relative;
-            margin: 12px 0;
-            padding-left: 27px;
-            color: #475467;
-        }
-
-        .delivery-points li::before {
-            content: "✓";
-            position: absolute;
-            left: 0;
-            top: 0;
-            color: var(--success);
-            font-weight: 800;
-        }
-
-        .site-footer {
-            padding: 40px 0 54px;
-            color: var(--muted);
-            font-size: 13px;
-        }
-
-        .footer-inner {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 24px;
-            padding-top: 28px;
-            border-top: 1px solid var(--border);
-        }
-
-        .footer-brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .footer-brand img {
-            width: 46px;
-            height: 46px;
-            object-fit: contain;
-            border-radius: 10px;
-        }
-
-        .footer-links {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 18px;
-        }
-
-        .footer-links a {
-            color: #475467;
-            text-decoration: none;
-        }
-
-        .footer-links a:hover {
-            color: var(--primary);
-        }
-
-        @media (max-width: 900px) {
-            .hero-grid,
-            .purchase-wrap {
-                grid-template-columns: 1fr;
-            }
-
-            .logo-card {
-                min-height: 340px;
-            }
-
-            .feature-grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-            }
-
-            .nav a:not(.button) {
-                display: none;
-            }
-        }
-
-        @media (max-width: 640px) {
-            .container {
-                width: min(calc(100% - 28px), var(--max-width));
-            }
-
-            .header-inner {
-                min-height: 68px;
-            }
-
-            .brand img {
-                width: 185px;
-            }
-
-            .nav .button {
-                min-height: 40px;
-                padding: 0 14px;
-                font-size: 13px;
-            }
-
-            .hero {
-                padding: 54px 0 44px;
-            }
-
-            .hero-grid {
-                gap: 36px;
-            }
-
-            .logo-card {
-                min-height: 280px;
-                padding: 28px;
-            }
-
-            .section {
-                padding: 56px 0;
-            }
-
-            .feature-grid,
-            .screenshots,
-            .difference,
-            .requirements-grid,
-            .support-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .footer-inner {
-                align-items: flex-start;
-                flex-direction: column;
-            }
-        }
-    </style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MWD Extensions | Queue Manager for Magento 2</title>
+<meta content="MWD Queue Manager for Magento 2 provides read-only message queue monitoring, RabbitMQ runtime visibility, diagnostics, history, alerts, and support tooling directly in Magento Admin." name="description"/>
+<link href="images/MWD_Extensions_logo.png" rel="icon" type="image/png"/>
+<style>
+:root {
+    --bg: #f6f8fc;
+    --surface: #ffffff;
+    --surface-soft: #f9fbff;
+    --text: #152033;
+    --muted: #667085;
+    --border: #e2e8f0;
+    --primary: #155eef;
+    --primary-dark: #1849a9;
+    --primary-soft: #eef4ff;
+    --success: #067647;
+    --shadow: 0 18px 50px rgba(16, 24, 40, 0.08);
+    --max-width: 1180px;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+    margin: 0;
+    background:
+        radial-gradient(circle at top right, rgba(21, 94, 239, 0.08), transparent 34rem),
+        var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+}
+img { max-width: 100%; }
+a { color: var(--primary); }
+a:hover { color: var(--primary-dark); }
+.container {
+    width: min(calc(100% - 40px), var(--max-width));
+    margin: 0 auto;
+}
+.site-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(226, 232, 240, 0.92);
+}
+.header-inner {
+    min-height: 78px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+}
+.brand {
+    display: block;
+    width: 210px;
+    height: 62px;
+    overflow: hidden;
+    flex: 0 0 auto;
+    border-radius: 8px;
+}
+.brand img {
+    display: block;
+    width: 210px;
+    height: 62px;
+    max-width: none;
+    object-fit: cover;
+    object-position: center center;
+}
+.nav {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    font-size: 14px;
+    font-weight: 650;
+}
+.nav a {
+    color: #344054;
+    text-decoration: none;
+}
+.nav a:hover { color: var(--primary); }
+.button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 46px;
+    padding: 0 19px;
+    border-radius: 9px;
+    border: 1px solid transparent;
+    text-decoration: none;
+    font-weight: 700;
+    transition: 0.2s ease;
+}
+.button-primary {
+    color: #fff !important;
+    background: var(--primary);
+    box-shadow: 0 8px 22px rgba(21, 94, 239, 0.22);
+}
+.button-primary:hover {
+    background: var(--primary-dark);
+    transform: translateY(-1px);
+}
+.button-secondary {
+    color: #344054;
+    background: #fff;
+    border-color: var(--border);
+}
+.button-secondary:hover {
+    border-color: #b9c7dc;
+    color: var(--primary);
+}
+.hero { padding: 82px 0 68px; }
+.hero-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(330px, 0.75fr);
+    align-items: center;
+    gap: 68px;
+}
+.eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 18px;
+    padding: 7px 11px;
+    border: 1px solid #c7d7fe;
+    border-radius: 999px;
+    background: var(--primary-soft);
+    color: var(--primary-dark);
+    font-size: 13px;
+    font-weight: 700;
+}
+h1, h2, h3 { color: var(--text); line-height: 1.18; }
+h1 {
+    margin: 0;
+    max-width: 790px;
+    font-size: clamp(42px, 6vw, 68px);
+    letter-spacing: -0.045em;
+}
+.hero-copy {
+    max-width: 760px;
+    margin: 24px 0 0;
+    color: #475467;
+    font-size: 19px;
+    line-height: 1.7;
+}
+.hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 30px;
+}
+.hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 22px;
+}
+.pill {
+    padding: 7px 10px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: #fff;
+    color: #475467;
+    font-size: 13px;
+    font-weight: 600;
+}
+.logo-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 420px;
+    padding: 38px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 28px;
+    background: linear-gradient(145deg, rgba(255,255,255,.99), rgba(239,244,255,.92));
+    box-shadow: var(--shadow);
+}
+.logo-art {
+    width: min(100%, 330px);
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+.logo-art img {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: contain;
+    transform: scale(1.58);
+    transform-origin: center;
+}
+.section { padding: 76px 0; }
+.section-alt {
+    background: #fff;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+}
+.section-head { max-width: 780px; margin-bottom: 36px; }
+.section-head h2 {
+    margin: 0 0 14px;
+    font-size: clamp(30px, 4vw, 44px);
+    letter-spacing: -0.03em;
+}
+.section-head p { margin: 0; color: var(--muted); font-size: 17px; }
+.site-footer { padding: 40px 0 54px; color: var(--muted); font-size: 13px; }
+.footer-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 24px;
+    padding-top: 28px;
+    border-top: 1px solid var(--border);
+}
+.footer-brand { display: flex; align-items: center; gap: 12px; }
+.footer-logo {
+    width: 48px;
+    height: 48px;
+    overflow: hidden;
+    border-radius: 10px;
+    flex: 0 0 auto;
+}
+.footer-logo img {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: contain;
+    transform: scale(1.72);
+}
+.footer-links { display: flex; flex-wrap: wrap; gap: 18px; }
+.footer-links a { color: #475467; text-decoration: none; }
+.footer-links a:hover { color: var(--primary); }
+@media (max-width: 900px) {
+    .hero-grid { grid-template-columns: 1fr; }
+    .logo-card { min-height: 340px; }
+    .nav a:not(.button) { display: none; }
+}
+@media (max-width: 640px) {
+    .container { width: min(calc(100% - 28px), var(--max-width)); }
+    .header-inner { min-height: 68px; }
+    .brand { width: 168px; height: 50px; }
+    .brand img { width: 168px; height: 50px; }
+    .nav .button { min-height: 40px; padding: 0 14px; font-size: 13px; }
+    .hero { padding: 54px 0 44px; }
+    .hero-grid { gap: 36px; }
+    .logo-card { min-height: 280px; padding: 28px; }
+    .section { padding: 56px 0; }
+    .footer-inner { align-items: flex-start; flex-direction: column; }
+}
+
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+}
+.feature {
+    min-height: 210px;
+    padding: 25px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 8px 28px rgba(16, 24, 40, 0.04);
+}
+.feature-number {
+    display: flex;
+    width: 38px;
+    height: 38px;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 18px;
+    border-radius: 10px;
+    background: var(--primary-soft);
+    color: var(--primary);
+    font-size: 14px;
+    font-weight: 800;
+}
+.feature h3 { margin: 0 0 9px; font-size: 18px; }
+.feature p { margin: 0; color: var(--muted); font-size: 14px; }
+.difference {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+.difference-card {
+    padding: 30px;
+    border-radius: 18px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+}
+.difference-card.highlight {
+    border-color: #b9ccff;
+    background: linear-gradient(180deg, #f6f9ff 0%, #ffffff 100%);
+}
+.difference-card h3 { margin: 0 0 11px; font-size: 22px; }
+.difference-card p { margin: 0; color: var(--muted); }
+.screenshots {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+}
+.screenshot {
+    overflow: hidden;
+    margin: 0;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 10px 30px rgba(16, 24, 40, 0.05);
+}
+.screenshot img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    object-position: top left;
+    background: #f2f4f7;
+}
+.screenshot figcaption {
+    padding: 15px 17px 17px;
+    color: #475467;
+    font-size: 14px;
+    font-weight: 650;
+}
+.requirements-grid, .support-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+.info-card {
+    padding: 28px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: var(--surface);
+}
+.info-card h3 { margin: 0 0 14px; font-size: 20px; }
+.info-card ul { margin: 0; padding-left: 20px; color: #475467; }
+.info-card li { margin: 8px 0; }
+.purchase-wrap {
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: 24px;
+}
+.purchase-card, .delivery-card {
+    padding: 34px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    background: #fff;
+    box-shadow: 0 12px 34px rgba(16, 24, 40, 0.06);
+}
+.price {
+    margin: 10px 0 0;
+    font-size: 48px;
+    line-height: 1;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+}
+.price-note { margin: 10px 0 24px; color: var(--muted); }
+.purchase-card .button { width: 100%; }
+.secure-note { margin-top: 14px; color: var(--muted); text-align: center; font-size: 13px; }
+.delivery-card h3, .purchase-card h3 { margin: 0 0 10px; font-size: 23px; }
+.delivery-card p, .purchase-card p { color: var(--muted); }
+.delivery-points { margin: 20px 0 0; padding: 0; list-style: none; }
+.delivery-points li { position: relative; margin: 12px 0; padding-left: 27px; color: #475467; }
+.delivery-points li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: var(--success);
+    font-weight: 800;
+}
+@media (max-width: 900px) {
+    .purchase-wrap { grid-template-columns: 1fr; }
+    .feature-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+    .feature-grid, .screenshots, .difference, .requirements-grid, .support-grid { grid-template-columns: 1fr; }
+}
+</style>
 </head>
-
 <body>
-
 <header class="site-header">
-    <div class="container header-inner">
-        <a class="brand" href="./" aria-label="MWD Extensions home">
-            <img
-                src="images/MWD_Extensions_logo2.png"
-                alt="MWD Extensions"
-            >
-        </a>
-
-        <nav class="nav" aria-label="Primary navigation">
-            <a href="#features">Features</a>
-            <a href="#screenshots">Screenshots</a>
-            <a href="#requirements">Requirements</a>
-            <a href="#support">Support</a>
-            <a
-                class="button button-primary"
-                href="https://buy.stripe.com/aFa5kC26RgxS0987Fb7EQ00"
-            >
+<div class="container header-inner">
+<a aria-label="MWD Extensions home" class="brand" href="./"><img alt="MWD Extensions" src="images/MWD_Extensions_logo2.png"/></a>
+<nav aria-label="Primary navigation" class="nav">
+<a href="#features">Features</a>
+<a href="#screenshots">Screenshots</a>
+<a href="#requirements">Requirements</a>
+<a href="#support">Support</a>
+<a class="button button-primary" href="https://buy.stripe.com/aFa5kC26RgxS0987Fb7EQ00">
                 Purchase
             </a>
-        </nav>
-    </div>
+</nav>
+</div>
 </header>
-
 <main>
-
-    <section class="hero">
-        <div class="container hero-grid">
-            <div>
-                <div class="eyebrow">
+<section class="hero">
+<div class="container hero-grid">
+<div>
+<div class="eyebrow">
                     Magento 2 message queue visibility
                 </div>
-
-                <h1>
+<h1>
                     Know when your Magento queues have a problem before your customers do.
                 </h1>
-
-                <p class="hero-copy">
+<p class="hero-copy">
                     MWD Queue Manager brings Magento-aware RabbitMQ monitoring,
                     queue health, diagnostics, history, backlog analysis, alerts,
                     and support tooling directly into Magento Admin.
                 </p>
-
-                <div class="hero-actions">
-                    <a
-                        class="button button-primary"
-                        href="https://buy.stripe.com/aFa5kC26RgxS0987Fb7EQ00"
-                    >
+<div class="hero-actions">
+<a class="button button-primary" href="https://buy.stripe.com/aFa5kC26RgxS0987Fb7EQ00">
                         Purchase for $199
                     </a>
-
-                    <a class="button button-secondary" href="#screenshots">
+<a class="button button-secondary" href="#screenshots">
                         View screenshots
                     </a>
-                </div>
-
-                <div class="hero-meta">
-                    <span class="pill">One-time purchase</span>
-                    <span class="pill">Read-only monitoring</span>
-                    <span class="pill">Instant secure delivery</span>
-                    <span class="pill">Magento Admin integration</span>
-                </div>
-            </div>
-
-            <div class="logo-card" aria-hidden="true">
-                <img
-                    src="images/MWD_Extensions_logo.png"
-                    alt=""
-                >
-            </div>
-        </div>
-    </section>
-
-
-    <section class="section section-alt" id="features">
-        <div class="container">
-            <div class="section-head">
-                <h2>Operational visibility without leaving Magento.</h2>
-                <p>
+</div>
+<div class="hero-meta">
+<span class="pill">One-time purchase</span>
+<span class="pill">Read-only monitoring</span>
+<span class="pill">Instant secure delivery</span>
+<span class="pill">Magento Admin integration</span>
+</div>
+</div>
+<div aria-hidden="true" class="logo-card"><div class="logo-art"><img alt="" src="images/MWD_Extensions_logo.png"/></div></div>
+</div>
+</section>
+<section class="section section-alt" id="features">
+<div class="container">
+<div class="section-head">
+<h2>Operational visibility without leaving Magento.</h2>
+<p>
                     Queue Manager turns low-level queue and RabbitMQ runtime data
                     into a Magento-focused operational view that is easier to
                     monitor, diagnose, and support.
                 </p>
-            </div>
-
-            <div class="feature-grid">
-                <article class="feature">
-                    <div class="feature-number">01</div>
-                    <h3>Queue health</h3>
-                    <p>
+</div>
+<div class="feature-grid">
+<article class="feature">
+<div class="feature-number">01</div>
+<h3>Queue health</h3>
+<p>
                         See configured queues, ready and unacknowledged messages,
                         consumer activity, and health classifications in one place.
                     </p>
-                </article>
-
-                <article class="feature">
-                    <div class="feature-number">02</div>
-                    <h3>Queue operations</h3>
-                    <p>
+</article>
+<article class="feature">
+<div class="feature-number">02</div>
+<h3>Queue operations</h3>
+<p>
                         Search and review Magento queue state with concise,
                         operationally useful status information.
                     </p>
-                </article>
-
-                <article class="feature">
-                    <div class="feature-number">03</div>
-                    <h3>Historical trends</h3>
-                    <p>
+</article>
+<article class="feature">
+<div class="feature-number">03</div>
+<h3>Historical trends</h3>
+<p>
                         Track queue depth and runtime behavior over time to see
                         spikes, drains, and recurring backlog patterns.
                     </p>
-                </article>
-
-                <article class="feature">
-                    <div class="feature-number">04</div>
-                    <h3>Diagnostics</h3>
-                    <p>
+</article>
+<article class="feature">
+<div class="feature-number">04</div>
+<h3>Diagnostics</h3>
+<p>
                         Deterministic diagnostics highlight meaningful queue
                         conditions without relying on vague presentation text.
                     </p>
-                </article>
-
-                <article class="feature">
-                    <div class="feature-number">05</div>
-                    <h3>RabbitMQ runtime</h3>
-                    <p>
+</article>
+<article class="feature">
+<div class="feature-number">05</div>
+<h3>RabbitMQ runtime</h3>
+<p>
                         Bring RabbitMQ queue and resource metrics into Magento
                         Admin while keeping Queue Manager observational and read-only.
                     </p>
-                </article>
-
-                <article class="feature">
-                    <div class="feature-number">06</div>
-                    <h3>Alerts and support</h3>
-                    <p>
+</article>
+<article class="feature">
+<div class="feature-number">06</div>
+<h3>Alerts and support</h3>
+<p>
                         Use incident alerts, support diagnostics, logs, and a
                         generated support report to shorten troubleshooting time.
                     </p>
-                </article>
-            </div>
-        </div>
-    </section>
-
-
-    <section class="section">
-        <div class="container">
-            <div class="section-head">
-                <h2>Why not just use RabbitMQ Management?</h2>
-                <p>
+</article>
+</div>
+</div>
+</section>
+<section class="section">
+<div class="container">
+<div class="section-head">
+<h2>Why not just use RabbitMQ Management?</h2>
+<p>
                     RabbitMQ Management is valuable infrastructure tooling.
                     Queue Manager solves a different problem: understanding what
                     RabbitMQ activity means in the context of Magento.
                 </p>
-            </div>
-
-            <div class="difference">
-                <article class="difference-card">
-                    <h3>RabbitMQ Management</h3>
-                    <p>
+</div>
+<div class="difference">
+<article class="difference-card">
+<h3>RabbitMQ Management</h3>
+<p>
                         Answers infrastructure questions such as which queues
                         exist, how many messages they contain, and what the broker
                         is doing.
                     </p>
-                </article>
-
-                <article class="difference-card highlight">
-                    <h3>MWD Queue Manager</h3>
-                    <p>
+</article>
+<article class="difference-card highlight">
+<h3>MWD Queue Manager</h3>
+<p>
                         Connects broker runtime to Magento queue configuration,
                         health, history, diagnostics, consumers, alerts, and support
                         workflows inside Magento Admin.
                     </p>
-                </article>
-            </div>
-        </div>
-    </section>
-
-
-    <section class="section section-alt" id="screenshots">
-        <div class="container">
-            <div class="section-head">
-                <h2>See Queue Manager in action.</h2>
-                <p>
+</article>
+</div>
+</div>
+</section>
+<section class="section section-alt" id="screenshots">
+<div class="container">
+<div class="section-head">
+<h2>See Queue Manager in action.</h2>
+<p>
                     A focused Magento Admin experience for day-to-day monitoring,
                     troubleshooting, and support.
                 </p>
-            </div>
-
-            <div class="screenshots">
-                <figure class="screenshot">
-                    <img
-                        src="images/01-dashboard-overview.png"
-                        alt="MWD Queue Manager dashboard overview"
-                        loading="lazy"
-                    >
-                    <figcaption>Dashboard overview</figcaption>
-                </figure>
-
-                <figure class="screenshot">
-                    <img
-                        src="images/02-queue-operations.png"
-                        alt="MWD Queue Manager queue operations"
-                        loading="lazy"
-                    >
-                    <figcaption>Queue operations</figcaption>
-                </figure>
-
-                <figure class="screenshot">
-                    <img
-                        src="images/03-historical-trends.png"
-                        alt="MWD Queue Manager historical queue trends"
-                        loading="lazy"
-                    >
-                    <figcaption>Historical trends</figcaption>
-                </figure>
-
-                <figure class="screenshot">
-                    <img
-                        src="images/04-diagnostics.png"
-                        alt="MWD Queue Manager diagnostics"
-                        loading="lazy"
-                    >
-                    <figcaption>Queue diagnostics</figcaption>
-                </figure>
-
-                <figure class="screenshot">
-                    <img
-                        src="images/05-configurations.png.png"
-                        alt="MWD Queue Manager configuration summary"
-                        loading="lazy"
-                    >
-                    <figcaption>Configuration and runtime summary</figcaption>
-                </figure>
-
-                <figure class="screenshot">
-                    <img
-                        src="images/06-user-manual.png"
-                        alt="MWD Queue Manager user guide"
-                        loading="lazy"
-                    >
-                    <figcaption>Built-in user guide</figcaption>
-                </figure>
-            </div>
-        </div>
-    </section>
-
-
-    <section class="section" id="requirements">
-        <div class="container">
-            <div class="section-head">
-                <h2>Requirements and validation.</h2>
-                <p>
+</div>
+<div class="screenshots">
+<figure class="screenshot">
+<img alt="MWD Queue Manager dashboard overview" loading="lazy" src="images/01-dashboard-overview.png"/>
+<figcaption>Dashboard overview</figcaption>
+</figure>
+<figure class="screenshot">
+<img alt="MWD Queue Manager queue operations" loading="lazy" src="images/02-queue-operations.png"/>
+<figcaption>Queue operations</figcaption>
+</figure>
+<figure class="screenshot">
+<img alt="MWD Queue Manager historical queue trends" loading="lazy" src="images/03-historical-trends.png"/>
+<figcaption>Historical trends</figcaption>
+</figure>
+<figure class="screenshot">
+<img alt="MWD Queue Manager diagnostics" loading="lazy" src="images/04-diagnostics.png"/>
+<figcaption>Queue diagnostics</figcaption>
+</figure>
+<figure class="screenshot">
+<img alt="MWD Queue Manager configuration summary" loading="lazy" src="images/05-configurations.png.png"/>
+<figcaption>Configuration and runtime summary</figcaption>
+</figure>
+<figure class="screenshot">
+<img alt="MWD Queue Manager user guide" loading="lazy" src="images/06-user-manual.png"/>
+<figcaption>Built-in user guide</figcaption>
+</figure>
+</div>
+</div>
+</section>
+<section class="section" id="requirements">
+<div class="container">
+<div class="section-head">
+<h2>Requirements and validation.</h2>
+<p>
                     Compatibility claims are kept intentionally specific so you
                     know what has actually been validated.
                 </p>
-            </div>
-
-            <div class="requirements-grid">
-                <article class="info-card">
-                    <h3>Validation baseline</h3>
-                    <ul>
-                        <li>Magento Open Source 2.4.9</li>
-                        <li>PHP 8.5</li>
-                        <li>RabbitMQ runtime</li>
-                        <li>Magento cron for scheduled history and alerts</li>
-                    </ul>
-                </article>
-
-                <article class="info-card">
-                    <h3>Runtime requirements</h3>
-                    <ul>
-                        <li>
+</div>
+<div class="requirements-grid">
+<article class="info-card">
+<h3>Validation baseline</h3>
+<ul>
+<li>Magento Open Source 2.4.9</li>
+<li>PHP 8.5</li>
+<li>RabbitMQ runtime</li>
+<li>Magento cron for scheduled history and alerts</li>
+</ul>
+</article>
+<article class="info-card">
+<h3>Runtime requirements</h3>
+<ul>
+<li>
                             RabbitMQ Management API is required for live runtime metrics.
                         </li>
-                        <li>
+<li>
                             A dedicated RabbitMQ monitoring account is recommended.
                         </li>
-                        <li>
+<li>
                             Queue Manager does not provide destructive queue actions.
                         </li>
-                        <li>
+<li>
                             Other environments may work but should be validated before production use.
                         </li>
-                    </ul>
-                </article>
-            </div>
-        </div>
-    </section>
-
-
-    <section class="section section-alt" id="support">
-        <div class="container">
-            <div class="section-head">
-                <h2>Designed to be supportable.</h2>
-                <p>
+</ul>
+</article>
+</div>
+</div>
+</section>
+<section class="section section-alt" id="support">
+<div class="container">
+<div class="section-head">
+<h2>Designed to be supportable.</h2>
+<p>
                     Queue Manager includes support-oriented tooling so common
                     troubleshooting can begin with useful diagnostics instead of
                     immediate server access.
                 </p>
-            </div>
-
-            <div class="support-grid">
-                <article class="info-card">
-                    <h3>Support report</h3>
-                    <p>
+</div>
+<div class="support-grid">
+<article class="info-card">
+<h3>Support report</h3>
+<p>
                         Generate a focused Queue Manager support report containing
                         relevant configuration and operational information while
                         avoiding unnecessary secrets.
                     </p>
-                </article>
-
-                <article class="info-card">
-                    <h3>Built-in guidance</h3>
-                    <p>
+</article>
+<article class="info-card">
+<h3>Built-in guidance</h3>
+<p>
                         The extension includes an Admin user guide and logging
                         intended to make installation, configuration, and support
                         easier for merchants, agencies, and developers.
                     </p>
-                </article>
-            </div>
-        </div>
-    </section>
-
-
-    <section class="section" id="purchase">
-        <div class="container">
-            <div class="section-head">
-                <h2>Get MWD Queue Manager.</h2>
-                <p>
+</article>
+</div>
+</div>
+</section>
+<section class="section" id="purchase">
+<div class="container">
+<div class="section-head">
+<h2>Get MWD Queue Manager.</h2>
+<p>
                     Secure checkout is handled by Stripe. Product delivery is
                     automated immediately after a successful payment.
                 </p>
-            </div>
-
-            <div class="purchase-wrap">
-                <article class="purchase-card">
-                    <h3>MWD Queue Manager for Magento 2</h3>
-                    <div class="price">$199</div>
-                    <p class="price-note">One-time purchase</p>
-
-                    <a
-                        class="button button-primary"
-                        href="https://buy.stripe.com/aFa5kC26RgxS0987Fb7EQ00"
-                    >
+</div>
+<div class="purchase-wrap">
+<article class="purchase-card">
+<h3>MWD Queue Manager for Magento 2</h3>
+<div class="price">$199</div>
+<p class="price-note">One-time purchase</p>
+<a class="button button-primary" href="https://buy.stripe.com/aFa5kC26RgxS0987Fb7EQ00">
                         Purchase Queue Manager
                     </a>
-
-                    <div class="secure-note">
+<div class="secure-note">
                         Secure checkout powered by Stripe.
                     </div>
-                </article>
-
-                <article class="delivery-card">
-                    <h3>Instant secure delivery</h3>
-
-                    <p>
+</article>
+<article class="delivery-card">
+<h3>Instant secure delivery</h3>
+<p>
                         After payment is completed, you are redirected immediately
                         to a secure download page for MWD Queue Manager.
                     </p>
-
-                    <ul class="delivery-points">
-                        <li>Purchase-specific secure download access</li>
-                        <li>Download link remains valid for 7 days</li>
-                        <li>SHA-256 checksum included for package verification</li>
-                        <li>Keep your Stripe receipt as proof of purchase</li>
-                    </ul>
-
-                    <p>
+<ul class="delivery-points">
+<li>Purchase-specific secure download access</li>
+<li>Download link remains valid for 7 days</li>
+<li>SHA-256 checksum included for package verification</li>
+<li>Keep your Stripe receipt as proof of purchase</li>
+</ul>
+<p>
                         If you lose access to your download before receiving the
                         package, contact MWD Extensions for assistance.
                     </p>
-                </article>
-            </div>
-        </div>
-    </section>
-
+</article>
+</div>
+</div>
+</section>
 </main>
-
-
 <footer class="site-footer">
-    <div class="container footer-inner">
-        <div class="footer-brand">
-            <img
-                src="images/MWD_Extensions_logo.png"
-                alt="MWD Extensions"
-            >
-
-            <span>
+<div class="container footer-inner">
+<div class="footer-brand">
+<span class="footer-logo"><img alt="MWD Extensions" src="images/MWD_Extensions_logo.png"/></span>
+<span>
                 © 2026 MWD Extensions. All rights reserved.
             </span>
-        </div>
-
-        <div class="footer-links">
-            <a href="privacy.html">Privacy Policy</a>
-            <a href="#support">Support</a>
-            <a href="#purchase">Purchase</a>
-        </div>
-    </div>
+</div>
+<div class="footer-links">
+<a href="privacy.html">Privacy Policy</a>
+<a href="#support">Support</a>
+<a href="#purchase">Purchase</a>
+</div>
+</div>
 </footer>
-
 </body>
 </html>
